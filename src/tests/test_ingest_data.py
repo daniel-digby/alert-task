@@ -33,3 +33,12 @@ class TestIngestData(BaseTestCase):
 
         result = self.conn.execute(sa.text("SELECT * FROM events")).fetchall()
         self.assertEqual(len(result), len(events))
+
+    def test_invalid_timestamp(self):
+        timestamp = "Invalid Timestamp"
+        event_type = "pedestrian"
+
+        with self.assertRaises(ValueError) as error:
+            ingest_data(self.conn, timestamp, event_type)
+
+        self.assertIn("timestamp", str(error.exception))
