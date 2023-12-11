@@ -36,22 +36,44 @@ def _validate_timestamp(timestamp: str) -> None:
         ) from e
 
 
-def ingest_data(conn: sa.Connection, timestamp: str, event_type: str) -> None:
+def ingest_data(conn: sa.Connection, events: list[tuple]) -> list[dict]:
     """
-    Ingests event data into the database after validation.
+    Ingests a batch of events into the database while filtering invalid events.
 
     Args:
         conn (sa.Connection): SQLAlchemy connection to the database.
-        timestamp (str): Timestamp of the event.
-        event_type (str): Type of the event.
+        events (list[tuple]): List of event data, each item as a tuple with "timestamp"
+                              and "event_type" values.
+
+    Returns:
+        list[dict]: List of invalid events (with "timestamp" and "event_type" keys) that
+                    failed validation and were not inserted into the database.
 
     Raises:
-        ValueError: If the timestamp or event_type fails validation.
-        Any other database-related exceptions raised by conn.execute().
+        Any database-related exceptions raised by conn.execute().
     """
-    _validate_timestamp(timestamp)
-    _validate_event_type(event_type)
-    conn.execute(
-        sa.text("INSERT INTO events (time, type) VALUES (:timestamp, :event_type)"),
-        {"timestamp": timestamp, "event_type": event_type},
-    )
+    valid_events = []
+    invalid_events = []
+    for event in events:
+        try:
+            _validate_timestamp(event[0])
+            _validate_event_type(event[1])
+            valid_events.append(dict(timestamp=event[0], event_type=event[1]))
+        except ValueError:
+            invalid_events.append(dict(timestamp=event[0], event_type=event[1]))
+
+    if valid_events:
+        insert_stmt = sa.text(
+            """
+            INSERT INTO events (time, type)
+            VALUES
+            (:timestamp, :event_type)
+            """
+        )
+
+        conn.execute(
+            insert_stmt,
+            valid_events,
+        )
+
+    return invalid_events

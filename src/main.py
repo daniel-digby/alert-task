@@ -33,8 +33,7 @@ def main():
         ("2023-08-10T18:37:30", "pedestrian"),
     ]
 
-    for timestamp, event_type in events:
-        ingest_data(conn, timestamp, event_type)
+    ingest_data(conn, events)
 
     aggregate_results = aggregate_events(conn)
     print(aggregate_results)
