@@ -42,3 +42,12 @@ class TestIngestData(BaseTestCase):
             ingest_data(self.conn, timestamp, event_type)
 
         self.assertIn("timestamp", str(error.exception))
+
+    def test_invalid_event_type(self):
+        timestamp = "2023-08-10T18:30:30"
+        event_type = "Invalid Event Type"
+
+        with self.assertRaises(ValueError) as error:
+            ingest_data(self.conn, timestamp, event_type)
+
+        self.assertIn("event type", str(error.exception))
