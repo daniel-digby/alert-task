@@ -3,6 +3,16 @@ import time
 import sqlalchemy as sa
 
 
+def init_events_table(conn: sa.Connection) -> sa.Connection:
+    conn.execute(
+        sa.text(
+            "CREATE TABLE IF NOT EXISTS events "
+            "(id SERIAL PRIMARY KEY, time TIMESTAMP WITH TIME ZONE, type VARCHAR)"
+        )
+    )
+    return conn
+
+
 def database_connection() -> sa.Connection:
     engine = sa.create_engine("postgresql://postgres:postgres@postgres:5432/postgres")
 
@@ -14,12 +24,10 @@ def database_connection() -> sa.Connection:
                 raise e
             time.sleep(1)
 
-    conn.execute(
-        sa.text(
-            "CREATE TABLE IF NOT EXISTS events "
-            "(id SERIAL PRIMARY KEY, time TIMESTAMP WITH TIME ZONE, type VARCHAR)"
-        )
-    )
+    return init_events_table(conn)
 
-    return conn
 
+def mock_connection() -> sa.Connection:
+    engine = sa.create_engine("sqlite:///:memory:", echo=True)
+    conn = engine.connect()
+    return init_events_table(conn)
