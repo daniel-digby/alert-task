@@ -3,7 +3,7 @@ import time
 import sqlalchemy as sa
 
 
-def init_events_table(conn: sa.Connection) -> sa.Connection:
+def _init_events_table(conn: sa.Connection) -> sa.Connection:
     conn.execute(
         sa.text(
             "CREATE TABLE IF NOT EXISTS events "
@@ -24,10 +24,10 @@ def database_connection() -> sa.Connection:
                 raise e
             time.sleep(1)
 
-    return init_events_table(conn)
+    return _init_events_table(conn)
 
 
 def mock_connection() -> sa.Connection:
     engine = sa.create_engine("sqlite:///:memory:", echo=True)
     conn = engine.connect()
-    return init_events_table(conn)
+    return _init_events_table(conn)
