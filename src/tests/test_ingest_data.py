@@ -14,6 +14,7 @@ class TestIngestData(BaseTestCase):
             ("2023-08-10T18:31:30", "pedestrian"),
             ("2023-08-10T18:35:00", "pedestrian"),
             ("2023-08-10T18:35:30", "pedestrian"),
+            ("2023-08-10T18:35:30", "truck"),
             ("2023-08-10T18:36:00", "pedestrian"),
             ("2023-08-10T18:37:00", "pedestrian"),
             ("2023-08-10T18:37:30", "pedestrian"),
@@ -46,3 +47,21 @@ class TestIngestData(BaseTestCase):
         invalid_events = ingest_data(self.conn, events)
         self.assertTrue(invalid_events[0]["timestamp"] == "Invalid Timestamp")
         self.assertTrue(invalid_events[1]["event_type"] == "Invalid Event Type")
+
+    def test_suspicious_detection(self):
+        events = [
+            ("2023-08-10T18:30:30", "pedestrian"),
+            ("2023-08-10T18:31:00", "pedestrian"),
+            ("2023-08-10T18:31:00", "car"),
+            ("2023-08-10T18:31:30", "bicycle"),
+            ("2023-08-10T18:35:00", "bicycle"),
+            ("2023-08-10T18:35:30", "pedestrian"),
+            ("2023-08-10T18:36:00", "pedestrian"),
+            ("2023-08-10T18:37:00", "pedestrian"),
+            ("2023-08-10T18:37:30", "pedestrian"),
+        ]
+
+        with self.assertRaises(ValueError) as context:
+            ingest_data(self.conn, events)
+
+        self.assertIn("Suspicious", str(context.exception))
