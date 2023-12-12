@@ -13,3 +13,9 @@ The events are stored in postgres database the backend interacts with. In our ca
 1. Install [docker](https://docs.docker.com/engine/install/) and [docker-compose](https://docs.docker.com/compose/install/)
 2. Run the code using `./run.sh`. This script starts the database and runs implemented APIs.
 
+## Notes
+Testing was performed in a local poetry environment with the following dev dependencies:
+- black = "^23.11.0"
+- flake8 = "^6.1.0"
+- mypy = "^1.7.1"
+- testing-postgresql = "^1.3.0"
