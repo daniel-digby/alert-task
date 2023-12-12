@@ -94,4 +94,5 @@ def ingest_data(conn: sa.Connection, events: list[tuple]) -> list[dict]:
             valid_events,
         )
 
+    # NOTE: these would be logged, rather than returned, in a larger system.
     return invalid_events
