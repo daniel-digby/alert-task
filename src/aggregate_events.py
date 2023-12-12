@@ -2,6 +2,21 @@ import sqlalchemy as sa
 
 
 def aggregate_events(conn: sa.Connection) -> dict[str, list[tuple[str, str]]]:
+    """
+    Aggregate events into activity periods for 'people' and 'vehicles'. 
+    
+    Events, of the same category, that occur within 60 seconds of each other make up activity periods.
+    Activity periods are not ended if an event of another category occurs, both periods are tracked.
+
+    Args:
+        conn (sa.Connection): SQLAlchemy connection object.
+
+    Returns:
+        dict[str, list[tuple[str, str]]]: A dictionary containing activity periods
+            for 'people' and 'vehicles' with start and end times in 
+            YYYY-MM-DD"T"HH24:MI:SS format.
+    """
+
     activity_periods_stmt = sa.text(
         """
         -- categorize events into 'people' or 'vehicles'
