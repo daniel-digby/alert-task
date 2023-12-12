@@ -1,20 +1,7 @@
-from db import database_connection
-import sqlalchemy as sa
 
-from ingest_data import ingest_data
-
-
-def aggregate_events(conn: sa.Connection) -> dict[str, list[tuple[str, str]]]:
-    return {
-        "people": [
-            ("2023-08-10T10:00:00", "2023-08-10T10:02:00"),
-            ("2023-08-10T10:04:00", "2023-08-10T10:05:00"),
-        ],
-        "vehicles": [
-            ("2023-08-10T10:00:00", "2023-08-10T10:02:00"),
-            ("2023-08-10T10:05:00", "2023-08-10T10:07:00"),
-        ],
-    }
+from src.aggregate_events import aggregate_events
+from src.db import database_connection
+from src.ingest_data import ingest_data
 
 
 def main():
