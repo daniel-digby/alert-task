@@ -5,3 +5,10 @@ EVENT_TYPES = (
     "truck",
     "van",
 )
+
+PEOPLE_EVENT_TYPES = [
+    "bicycle",
+    "pedestrian",
+]
+
+SUSPICIOUS_DETECTION_THRESHOLD = 5

@@ -1,7 +1,11 @@
 from datetime import datetime
 import sqlalchemy as sa
 
-from src.constants import EVENT_TYPES
+from src.constants import (
+    EVENT_TYPES,
+    PEOPLE_EVENT_TYPES,
+    SUSPICIOUS_DETECTION_THRESHOLD,
+)
 
 
 def _validate_event_type(event_type: str) -> None:
@@ -52,15 +56,28 @@ def ingest_data(conn: sa.Connection, events: list[tuple]) -> list[dict]:
     Raises:
         Any database-related exceptions raised by conn.execute().
     """
+    consecutive_person_detections = 0
+
     valid_events = []
     invalid_events = []
     for event in events:
         try:
             _validate_timestamp(event[0])
             _validate_event_type(event[1])
-            valid_events.append(dict(timestamp=event[0], event_type=event[1]))
         except ValueError:
             invalid_events.append(dict(timestamp=event[0], event_type=event[1]))
+
+        valid_events.append(dict(timestamp=event[0], event_type=event[1]))
+
+        if event[1] in PEOPLE_EVENT_TYPES:
+            consecutive_person_detections += 1
+            if consecutive_person_detections >= SUSPICIOUS_DETECTION_THRESHOLD:
+                raise ValueError(
+                    "Suspicious activity: Person detected in {SUSPICIOUS_DETECTION_THRESHOLD}"
+                    + " consecutive events!"
+                )
+        else:
+            consecutive_person_detections = 0
 
     if valid_events:
         insert_stmt = sa.text(
