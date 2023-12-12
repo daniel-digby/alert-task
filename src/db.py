@@ -27,7 +27,24 @@ def database_connection() -> sa.Connection:
     return _init_events_table(conn)
 
 
-def mock_connection() -> sa.Connection:
-    engine = sa.create_engine("sqlite:///:memory:", echo=True)
+def mock_connection(postgresql_url) -> sa.Connection:
+    engine = sa.create_engine(postgresql_url, echo=True)
     conn = engine.connect()
     return _init_events_table(conn)
+
+
+def mock_events(mock_conn: sa.Connection, events: list[tuple]) -> None:
+    dict_events = list(
+        dict(timestamp=event[0], event_type=event[1]) for event in events
+    )
+    insert_stmt = sa.text(
+        """
+            INSERT INTO events (time, type)
+            VALUES
+            (:timestamp, :event_type)
+            """
+    )
+    mock_conn.execute(
+        insert_stmt,
+        dict_events,
+    )
