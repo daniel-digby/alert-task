@@ -57,6 +57,7 @@ def ingest_data(conn: sa.Connection, events: list[tuple]) -> list[dict]:
         ValueError: If consecutive detections of a person exceed the suspicious detection threshold.
 
     """
+    # NOTE: I would use a cache external to this function to store this. In a high volume system this function is likely to be called in parallel. 
     consecutive_person_detections = 0
 
     valid_events = []
