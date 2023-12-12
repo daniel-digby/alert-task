@@ -42,7 +42,7 @@ def _validate_timestamp(timestamp: str) -> None:
 
 def ingest_data(conn: sa.Connection, events: list[tuple]) -> list[dict]:
     """
-    Ingests a batch of events into the database while filtering invalid events.
+    Ingests a batch of events into the database while filtering invalid events and detecting suspicious activities.
 
     Args:
         conn (sa.Connection): SQLAlchemy connection to the database.
@@ -54,7 +54,8 @@ def ingest_data(conn: sa.Connection, events: list[tuple]) -> list[dict]:
                     failed validation and were not inserted into the database.
 
     Raises:
-        Any database-related exceptions raised by conn.execute().
+        ValueError: If consecutive detections of a person exceed the suspicious detection threshold.
+
     """
     consecutive_person_detections = 0
 
